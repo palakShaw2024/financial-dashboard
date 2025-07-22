@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Financial Dashboard</title>
+  <link rel="stylesheet" href="styling.css" />
+</head>
+<body>
+  <div class="container">
+        
+        <header class="header">
+            <h1>My Financial Planning</h1>
+            <p>A Diary of your assets and the latest financial news.</p>
+        </header>
+
+        
+        <div class="dashboard">
+             <div class="portfolio-card">
+                <h2>Your Portfolio</h2>
+
+                
+                <div class="total-money-card">
+                    <div class="flex-between">
+                        <span class="net-worth">Total Net Worth</span>
+                        
+                    </div>
+                    <p id="totalMoney" class="total-amount">₹0.00</p>
+                    <p class="last-updated">This will show the total balance you have including all the assests investements.</p> 
+                    <p class="last-updated">As of <span id="lastUpdated"></span></p>
+
+                    
+                    <div class="update-balance-section">
+                        <input type="number" id="balanceInput" placeholder="Update balance (e.g.- 500 )" >
+                        <button id="updateBalanceBtn">Update Balance</button>
+                    </div>
+                </div>
+
+                
+                <div class="asset-allocation-section">
+                    <h3>Asset Allocation</h3>
+                    <div id="assetAllocationList" class="asset-allocation-list"></div>
+                </div>
+
+                
+                <div class="add-asset-section card">
+                    <h3>Add New Asset</h3>
+                    <input type="text" id="newAssetName" placeholder="Asset Name">
+                    <input type="number" id="newAssetValue" placeholder="Asset Value">
+                    <input type="color" id="newAssetColor" value="#4CAF50"> 
+                    <button id="addAssetBtn">Add Asset</button>
+                </div>
+            </div>
+
+            
+            <div class="right-column-container">
+                <div class="card news-section">
+                    <h2>Financial News</h2>
+                    <div id="newsFeed" class="news-feed">
+                       
+                        <div class="news-item">
+                            <h4>Market Trends 2024: What to Expect</h4>
+                            <p>Experts predict a volatile but potentially rewarding year for investors, with focus on tech and renewable energy.</p>
+                            <span class="news-source">Source: Financial Times</span>
+                        </div>
+                        <div class="news-item">
+                            <h4>Understanding Inflation's Impact on Savings</h4>
+                            <p>Inflation continues to be a key concern, eroding purchasing power. Strategies for hedging against it.</p>
+                            <span class="news-source">Source: Wall Street Journal</span>
+                        </div>
+                        <div class="news-item">
+                            <h4>The Rise of Sustainable Investing</h4>
+                            <p>More investors are looking into ESG (Environmental, Social, and Governance) funds. A look at top performers.</p>
+                            <span class="news-source">Source: Bloomberg</span>
+                        </div>
+                        <div class="news-item">
+                            <h4>Cryptocurrency Regulations on the Horizon</h4>
+                            <p>Governments worldwide are drafting new rules for digital assets, aiming for stability and consumer protection.</p>
+                            <span class="news-source">Source: Reuters</span>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                
+                <div class="card previous-spending-section">
+                    <h2>Previous Month's Spending</h2>
+                    <div id="spendingList" class="spending-list">
+                        
+                    </div>
+                    
+                    <div class="add-spending-section">
+                        <h3>Add New Spending</h3>
+                        <input type="text" id="newSpendingCategory" placeholder="Category (e.g. Groceries)">
+                        <input type="number" id="newSpendingAmount" placeholder="Amount">
+                        <button id="addSpendingBtn">Add Spending</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+  <script src="script.js"></script>
+</body>
+</html>
