@@ -219,6 +219,10 @@ section[name="family-related"] input {
     flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
 
+p {
+    align-items: center;
+}
+
 .card {
     flex: 1; /* Allow cards to grow and shrink */
     min-width: 300px; /* Minimum width before wrapping */
