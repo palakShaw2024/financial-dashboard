@@ -5,102 +5,270 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Financial Dashboard</title>
   <link rel="stylesheet" href="styling.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
   <div class="container">
         
+        <nav class="navbar">
+            <a href="#net-worth">Home</a>
+            <a href="#chart">Chart View</a>
+            <a href="#assets">Assets</a>
+            <a href="#suggestions">Insights/Suggestions</a>
+        </nav>
+
         <header class="header">
             <h1>My Financial Planning</h1>
             <p>A Diary of your assets and the latest financial news.</p>
         </header>
 
-        
-        <div class="dashboard">
-             <div class="portfolio-card">
-                <h2>Your Portfolio</h2>
-
-                
-                <div class="total-money-card">
-                    <div class="flex-between">
-                        <span class="net-worth">Total Net Worth</span>
-                        
-                    </div>
+        <section name="currency-related" class="dashboard">
+            <h2>Your Portfolio</h2>
+            <div class="total-money-card" id="net-worth">
+                <div class="flex-between">
+                    <span class="net-worth">Total Net Worth</span>
+                    <!-- <select class="year-filter">
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                    </select> -->
                     <p id="totalMoney" class="total-amount">₹0.00</p>
                     <p class="last-updated">This will show the total balance you have including all the assests investements.</p> 
                     <p class="last-updated">As of <span id="lastUpdated"></span></p>
-
-                    
+                    <select class="currency-convert">
+                        <option value="INR">INR</option>
+                        <option value="USD">USD</option>
+                        <option value="Euro">Euro</option>
+                    </select>
+                    <select class="country-convert">
+                        <option value="IND">INDIA</option>
+                        <option value="USA">USA</option>
+                        <option value="Europe">Europe</option>
+                    </select>
                     <div class="update-balance-section">
                         <input type="number" id="balanceInput" placeholder="Update balance (e.g.- 500 )" >
                         <button id="updateBalanceBtn">Update Balance</button>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                
-                <div class="asset-allocation-section">
-                    <h3>Asset Allocation</h3>
-                    <div id="assetAllocationList" class="asset-allocation-list"></div>
+
+        <section name="family-related">
+            <div>
+                <p>Do You want to include family member Contribution ?</p>
+                <button class="add-btn">Click Here</button>
+                <div style="display: none">
+                    <h4>add new member</h4>
+                    <input placeholder="Member Name">
+                    <input placeholder=" Value">
+                    <input type="color"  value="#4CAF50"> 
+                    <button class="add-btn" id="add-Btn">Add Asset</button>
+                </div>
+            </div>
+        </section>
+
+
+    <div class="main-column">       
+        <section class="card">
+            <div>
+                <h3>Asset Allocation</h3>
+                <div>
+                    <div>
+                        <label><strong><p>Banking / Cash</p></strong></label>
+                    <select class="dropdown">
+                        <option value="">-- Choose --</option>
+                        <option value="Savings Account">Savings Account</option>
+                        <option value="Current Account">Current Account</option>
+                        <option value="Cash">Cash</option>
+                    </select>
+                    
+                    <div style="display: none;">
+                        <input type="number" placeholder="Enter amount" class="asset-value">
+                        <input type="color" class="asset-color" value="#4CAF50">
+                        <button class="addAssetBtn">Add</button>
+                    </div>
+                    </div>
                 </div>
 
+                <div>
+                    <label><strong><p>Retirement Funds</p></strong></label>
+                    <select class="dropdown">
+                        <option value="">-- Choose --</option>
+                        <option value="pf">PF (Provident Fund)</option>
+                        <option value="epf">EPF (Employee Provident Fund)</option>
+                        <option value="cpf">CPF (Central Provident Fund)</option>
+                        <option value="ppf">PPF (Public Provident Fund)</option>
+                    </select>
+
+                    <div style="display: none;">
+                        <input type="number" placeholder="Enter amount" class="asset-value">
+                        <input type="color" class="asset-color" value="#4CAF50">
+                        <button class="addAssetBtn">Add</button>
+                    </div>
+                </div>
+
+
+                <div>
+                    <label><strong><p>Market Instruments / Securities</p></strong></label>
+                    <select class="dropdown">
+                        <option value="">-- Choose --</option>
+                        <option value="Equity">Equity</option>
+                        <option value="Mutual-Funds">Mutual Funds</option>
+                        <option value="Bonds">Bonds</option>
+                        <option value="Structured-Products">Structured Products</option>
+                        <option value="FCN">FCN (Fixed Coupon Notes)</option>
+                        <option value="crypto">crypto</option> 
+                    </select>
                 
-                <div class="add-asset-section card">
+
+                    <div style="display: none;">
+                        <input type="number" placeholder="Enter amount" class="asset-value">
+                        <input type="color" class="asset-color" value="#4CAF50">
+                        <button class="addAssetBtn">Add</button>
+                    </div>
+                </div>
+
+                <div>
+                     <label><strong><p>Fix Deposits</p></strong></label>
+                    <select class="dropdown">
+                        <option value="">-- Choose --</option>
+                        <option value="Bank-FD">Bank FD</option>
+                        <option value="Post-Office-FD">Post Office FD</option>
+                        <option value="Corporate-FD">Corporate FD</option>
+                    </select>
+
+                    <div style="display: none;">
+                        <input type="number" placeholder="Enter amount" class="asset-value">
+                        <input type="color" class="asset-color" value="#4CAF50">
+                        <button class="addAssetBtn">Add</button>
+                    </div>
+                </div>
+                <div>
+                     <label><strong><p>Real Estate / Physical Asset</p></strong></label>
+                    <select class="dropdown">
+                        <option value="">-- Choose --</option>
+                        <option value="House">House</option>
+                        <option value="Land">Land</option>
+                        <option value="Car">Car</option>
+                        <option value="Gold">Gold</option>
+                        <option value="Silver">Silver</option>
+                        <option value="Wine">Wine</option> 
+                        <option value="Art">Art</option> 
+                    </select>
+
+                    <div style="display: none;">
+                        <input type="number" placeholder="Enter amount" class="asset-value">
+                        <input type="color" class="asset-color" value="#4CAF50">
+                        <button class="addAssetBtn">Add</button>
+                    </div>
+                </div>
+
+                <div>
+                     <label><strong><p>Insurance</p></strong></label>
+                    <select class="dropdown">
+                        <option value="">-- Choose --</option>
+                        <option value="Life-Insurance">Life Insurance</option>
+                        <option value="Health-Insurance">Health Insurance</option>
+                        <option value="Vehicle-Insurance">Vehicle Insurance</option>
+                        <option value="Property-Insurance">Property Insurance</option>
+                    </select>
+                
+                    <div style="display: none;">
+                        <input type="number" placeholder="Enter amount" class="asset-value">
+                        <input type="color" class="asset-color" value="#4CAF50">
+                        <button class="addAssetBtn">Add</button>
+                    </div>
+                </div>
+
+                <div>
+                    <p>you can also customise a new one!</p>
                     <h3>Add New Asset</h3>
-                    <input type="text" id="newAssetName" placeholder="Asset Name">
-                    <input type="number" id="newAssetValue" placeholder="Asset Value">
-                    <input type="color" id="newAssetColor" value="#4CAF50"> 
-                    <button id="addAssetBtn">Add Asset</button>
+                    <input class="add-new-asset" type="text" id="newAssetName" placeholder="Asset Name">
+                    <input  class="add-new-asset" type="number" id="newAssetValue" placeholder="Asset Value">
+                    <input   class="add-color" type="color" id="newAssetColor" placeholder="Choose Color"> 
+                    <button id="addAssetBtn" class="add-new-asset">Add Asset</button>
                 </div>
-            </div>
+        
+        </section>
 
-            
-            <div class="right-column-container">
-                <div class="card news-section">
-                    <h2>Financial News</h2>
-                    <div id="newsFeed" class="news-feed">
-                       
-                        <div class="news-item">
-                            <h4>Market Trends 2024: What to Expect</h4>
-                            <p>Experts predict a volatile but potentially rewarding year for investors, with focus on tech and renewable energy.</p>
-                            <span class="news-source">Source: Financial Times</span>
-                        </div>
-                        <div class="news-item">
-                            <h4>Understanding Inflation's Impact on Savings</h4>
-                            <p>Inflation continues to be a key concern, eroding purchasing power. Strategies for hedging against it.</p>
-                            <span class="news-source">Source: Wall Street Journal</span>
-                        </div>
-                        <div class="news-item">
-                            <h4>The Rise of Sustainable Investing</h4>
-                            <p>More investors are looking into ESG (Environmental, Social, and Governance) funds. A look at top performers.</p>
-                            <span class="news-source">Source: Bloomberg</span>
-                        </div>
-                        <div class="news-item">
-                            <h4>Cryptocurrency Regulations on the Horizon</h4>
-                            <p>Governments worldwide are drafting new rules for digital assets, aiming for stability and consumer protection.</p>
-                            <span class="news-source">Source: Reuters</span>
-                        </div>
+        <section class="chart" id="assetPieChart">The graph of Worth Distribution</section>
+
+       
+
+        <section >
+            <div>
+                 <h2>Insights/Suggestions</h2>
+                 <div>
+                    <div class="card">
+                        <h3>Performance/Insights</h3>
+
+                        <select class="dropdown">
+                            <option value="perfornamce1" class="card2"><p>Performance by Asset Class</p></option>
+                            <option class="card1">“Gold emerged as top performer in FY25, up 33% in INR terms vs equities”</option>
+                            <option class="card2">“Mutual fund AUM in Gujarat hits ₹5.27 lakh crore in June, driven by equity inflows”</option>
+                        </select>
+                             <select class="dropdown"><option value="perfornamce1" class="card1"><p>Performance by Individual Holdings</p></option>
+                            <option class="card2">“State Bank of India slips 0.6% but still outperforms sector amid weak Sensex” </option>
+                            <option class="card1">“Midcap names fall; experts suggest largecaps like ICICI, HDFC to stay defensively positioned”</option>
+                        </select>
+                             <select class="dropdown"><option value="perfornamce2" class="card2"><p>Currency Impact</p></option>
+                                <option class="card1">“Foreign portfolio investors pulled out over ₹1.1 billion in equity in last three sessions” </option>
+                                <option class="card2">“Rupee volatility, rising U.S. rates squeezing investment sentiment in India” </option>
+                            </select>
+                             <select class="dropdown"><option value="perfornamce3" class="card1"><p>Reasons of Movement</p></option>
+                                <option class="card2">“Bajaj Finance falls ~5% on asset-quality concerns dragging indices lower”</option>
+                                <option class="card1">“FII pull-out amid global de-escalation boosts bonds, equities remain cautious” </option>
+                            </select>
+                             <select class="dropdown"><option value="perfornamce4" class="card2"><p>Analyst Ratings</p></option>
+                                <option class="card1">"360 ONE’s Raghav Iyengar: ‘Cut midcaps, buy largecaps’ amid overvalued small‑cap market”</option>
+                                <option class="card2">“Private equity survey shows sustained investor confidence in Indian alternatives market” </option>
+                            </select>
+                             <select class="dropdown"><option value="perfornamce5" class="card1"><p>Market Sentiment</p></option>
+                                <option class="card2">“Market turns cautious — 13/16 sectors down; IT and FMCG lag as SBI Life declines gains”</option>
+                                <option class="card1">“Investor shift to large-cap and alternative assets continues amid valuations stretch” </option>
+                            </select>    
                     </div>
-                    
-                </div>
-
-                
-                <div class="card previous-spending-section">
-                    <h2>Previous Month's Spending</h2>
-                    <div id="spendingList" class="spending-list">
+                    <div class="card">
+                        <h3>Suggestions/Recommendations</h3>
+                        <select class="dropdown"> <option value="sug1" class="card1"><p>Alternative Options in Same Industry</p></option>
+                            <option class="card2">“Office REITs outperform broader real estate index — consider non-listed real estate exposure”</option>
+                            <option class="card1">“High‑yield credit and structured products attracting investor attention over midcap risk”</option>
+                        </select>
                         
-                    </div>
-                    
-                    <div class="add-spending-section">
-                        <h3>Add New Spending</h3>
-                        <input type="text" id="newSpendingCategory" placeholder="Category (e.g. Groceries)">
-                        <input type="number" id="newSpendingAmount" placeholder="Amount">
-                        <button id="addSpendingBtn">Add Spending</button>
-                    </div>
-                </div>
+                        <select class="dropdown"> <option value="sug2" class="card2"> <p>Expected Movement</p></option>
+                            <option class="card1">“ESG bond issuance expected to rise post-RBI rate cuts, supporting sustainable debt segment” </option>
+                            <option class="card2">“IPO pipeline strong — $6.7 billion raised so far 2025, more listings likely in H2” </option>
+                        </select>
+                       
+                        <select class="dropdown"> <option value="sug3" class="card1"> <p>Better Performers in Same Industry</p></option>
+                            <option class="card2">“Large-cap banks like SBI Life hold up better vs ICICI, Kotak in weak market”</option>
+                            <option class="card1">“Mutual fund inflows in Gujarat heavily favor equity funds over debt or gold ETFs”</option>
+                        </select>
+                       
+                        <select class="dropdown"> <option value="sug4" class="card2"><p>Impact of Upcoming Events / News</p></option>
+                            <option class="card1">“Pending U.S.–India trade deal could shift sentiment — clarity expected by August”</option>
+                            <option class="card2">“NSDL IPO pricing surprises — 22% below grey market valuation, may impact retail demand” </option>
+                        </select>
+                        
+                        <select class="dropdown"> <option value="sug5" class="card1"> <p>Tax Saving Opportunities</p></option>
+                            <option class="card2">“Tax diversification strategies can reduce lifetime tax burden: experts”</option>
+                            <option class="card1">“Retirement savers urged to mix taxable and tax-advantaged accounts for efficiency”</option>
+                        </select>
+                       
+                        <select class="dropdown"> <option value="sug6" class="card2"> <p>Hedge Certain Risk</p></option>
+                            <option class="card1">“Advisors recommend increasing gold and commodity exposure as inflation hedge” </option>
+                            <option class="card2">“Diversify beyond large U.S. tech stocks: consider credit, alternatives to reduce risk”</option>
+                        </select>
+                       
+                    </div>   
+                 </div>
+                 
             </div>
-        </div>
-    </div>
-
-
-  <script src="script.js"></script>
+        </section>
+    </div> 
+        
+   <script src="script.js"></script>
 </body>
-</html>
+</html> 

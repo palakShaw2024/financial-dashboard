@@ -1,235 +1,301 @@
-const totalMoneyElement = document.getElementById('totalMoney');
-const lastUpdatedElement = document.getElementById('lastUpdated');
-const assetAllocationList = document.getElementById('assetAllocationList');
-const newsFeedElement = document.getElementById('newsFeed');
-const balanceInput = document.getElementById('balanceInput');
-const updateBalanceBtn = document.getElementById('updateBalanceBtn');
-const spendingListElement = document.getElementById('spendingList');
-const newAssetNameInput = document.getElementById('newAssetName');
- const newAssetValueInput = document.getElementById('newAssetValue');
-const newAssetColorInput = document.getElementById('newAssetColor');
-const addAssetBtn = document.getElementById('addAssetBtn');
-const newSpendingCategoryInput = document.getElementById('newSpendingCategory');
-const newSpendingAmountInput = document.getElementById('newSpendingAmount');
-const addSpendingBtn = document.getElementById('addSpendingBtn');
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Initializing Elements ---
+    const totalMoneyDisplay = document.getElementById('totalMoney');
+    const lastUpdatedSpan = document.getElementById('lastUpdated');
+    const updateBalanceInput = document.getElementById('balanceInput');
+    const updateBalanceBtn = document.getElementById('updateBalanceBtn');
+    const currencyConverter = document.querySelector('.currency-convert');
+
+    const familyContributionBtn = document.querySelector('section[name="family-related"] .add-btn');
+    const familyContributionSection = document.querySelector('section[name="family-related"] > div > div');
+    const familyMemberNameInput = familyContributionSection.querySelector('input[placeholder="Member Name"]');
+    const familyMemberValueInput = familyContributionSection.querySelector('input[placeholder=" Value"]');
+    const familyMemberColorInput = familyContributionSection.querySelector('input[type="color"]');
+    const addFamilyMemberBtn = document.getElementById('add-Btn');
+    const familyMembersList = document.createElement('ul'); // New: List for family members
+    familyMembersList.id = 'familyMembersList';
+    familyContributionSection.parentNode.insertBefore(familyMembersList, familyContributionSection.nextSibling);
 
 
+    const assetDropdowns = document.querySelectorAll('section.card .dropdown');
+    const newAssetNameInput = document.getElementById('newAssetName');
+    const newAssetValueInput = document.getElementById('newAssetValue');
+    const newAssetColorInput = document.getElementById('newAssetColor');
+    const addCustomAssetBtn = document.getElementById('addAssetBtn');
+    const assetsList = document.createElement('ul'); // New: List for assets
+    assetsList.id = 'assetsList';
+    document.querySelector('section.card').appendChild(assetsList); // Append to the asset allocation section
 
-const formatCurrency = (amount) => {
-            return new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(amount);
-        };
+    const assetPieChartContainer = document.getElementById('assetPieChart');
+    let assetChart; // To hold our Chart.js instance
 
-        
-        let financialData = {
-            totalMoney: 0, 
-            assetClasses: [
-                { name: 'Stocks', value: 0, color: '#4CAF50' },
-                { name: 'Bonds', value: 0, color: '#2196F3' },
-                { name: 'Real Estate', value: 0, color: '#FFC107' },
-                { name: 'Cash', value: 0, color: '#9E9E9E' }
-            ],
-            previousSpending: [
-                { category: 'Groceries', amount: 450.20 },
-                { category: 'Utilities', amount: 180.50 },
-                { category: 'Dining Out', amount: 320.00 },
-                { category: 'Transportation', amount: 120.75 },
-                { category: 'Entertainment', amount: 250.00 }
-            ],
-            lastUpdated: new Date().toLocaleDateString('en-IN', { 
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            })
-        };
+    // --- Data Storage (No localStorage for persistence) ---
+    // Data will now reset on page reload
+    let financialData = {
+        totalNetWorth: 0,
+        assets: {}, // { "Asset Name": { value: 1000, color: "#RRGGBB" }, ... }
+        familyContributions: {}, // { "Member Name": { value: 500, color: "#RRGGBB" }, ... }
+        currency: 'INR',
+        lastUpdated: new Date().toLocaleDateString()
+    };
 
-        
+    // --- Helper Functions ---
 
-        const calculateTotalMoney = () => {
-            return financialData.assetClasses.reduce((sum, asset) => sum + asset.value, 0);
-        };
+    // Function to render the total net worth
+    const renderNetWorth = () => {
+        totalMoneyDisplay.textContent = `${financialData.currency} ${financialData.totalNetWorth.toLocaleString('en-IN')}`;
+        lastUpdatedSpan.textContent = financialData.lastUpdated;
+    };
 
-        
-        const renderDashboard = () => {
-            financialData.totalMoney = calculateTotalMoney();
-            totalMoneyElement.textContent = formatCurrency(financialData.totalMoney);
-            lastUpdatedElement.textContent = financialData.lastUpdated;
+    // Function to calculate percentages for a given object (assets or family) relative to the totalNetWorth
+    const calculateRelativePercentages = (dataObject, totalBase) => {
+        return Object.entries(dataObject).map(([name, item]) => ({
+            label: name,
+            value: item.value,
+            percentage: totalBase === 0 ? 0 : (item.value / totalBase) * 100,
+            color: item.color
+        }));
+    };
 
-            
-            assetAllocationList.innerHTML = ''; 
-            financialData.assetClasses.forEach((asset, index) => {
-                
-                const percentage = financialData.totalMoney > 0 ? ((asset.value / financialData.totalMoney) * 100).toFixed(1) : 0;
+    // Function to update the total net worth
+    const updateTotalNetWorth = () => {
+        financialData.lastUpdated = new Date().toLocaleDateString();
+        renderNetWorth();
+        // Removed saveData()
+    };
 
-                const assetItem = document.createElement('div');
-                assetItem.className = 'asset-item';
-                assetItem.innerHTML = `
-                    <div class="asset-row-top">
-                        <div class="asset-info">
-                            <span class="color-dot" style="background-color: ${asset.color};"></span>
-                            <span class="asset-name">${asset.name}</span>
-                        </div>
-                        <div class="asset-value-input-container">
-                            <input type="number" class="asset-value-input" data-index="${index}" value="${asset.value.toFixed(2)}" step="0.01">
-                            <span class="asset-percent">(${percentage}%)</span>
-                            <button class="delete-btn" data-type="asset" data-index="${index}">&#x2715;</button> 
-                        </div>
-                    </div>
-                `;
-                assetAllocationList.appendChild(assetItem);
-            });
+    // Function to render the list of assets
+    const renderAssetsList = () => {
+        assetsList.innerHTML = ''; // Clear previous list
+        const assetData = calculateRelativePercentages(financialData.assets, financialData.totalNetWorth);
+        assetData.forEach(asset => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<strong>${asset.label}:</strong> ${financialData.currency} ${asset.value.toLocaleString('en-IN')} (${asset.percentage.toFixed(2)}%)`;
+            assetsList.appendChild(listItem);
+        });
+    };
 
-
-            document.querySelectorAll('.asset-value-input').forEach(input => {
-                input.addEventListener('change', (event) => {
-                    const index = parseInt(event.target.dataset.index);
-                    const newValue = parseFloat(event.target.value);
-
-                    if (!isNaN(newValue) && newValue >= 0) {
-                        financialData.assetClasses[index].value = newValue;
-                        financialData.lastUpdated = new Date().toLocaleDateString('en-IN', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        });
-                        renderDashboard(); 
-                    } else {
-                        alert('Please enter a valid positive number for the asset value.');
-                        
-                        event.target.value = financialData.assetClasses[index].value.toFixed(2);
-                    }
-                });
-            });
+    // Function to render the list of family members
+    const renderFamilyMembersList = () => {
+        familyMembersList.innerHTML = ''; // Clear previous list
+        const familyData = calculateRelativePercentages(financialData.familyContributions, financialData.totalNetWorth);
+        familyData.forEach(member => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<strong>${member.label}:</strong> ${financialData.currency} ${member.value.toLocaleString('en-IN')} (${member.percentage.toFixed(2)}%)`;
+            familyMembersList.appendChild(listItem);
+        });
+    };
 
 
-           
-            spendingListElement.innerHTML = ''; 
-            financialData.previousSpending.forEach((item, index) => {
-                const spendingItem = document.createElement('div');
-                spendingItem.className = 'spending-item';
-                spendingItem.innerHTML = `
-                    <div class="spending-item-content">
-                        <span class="spending-category">${item.category}</span>
-                        <span class="spending-value">${formatCurrency(item.amount)}</span>
-                    </div>
-                    <button class="delete-btn" data-type="spending" data-index="${index}">&#x2715;</button> 
-                `;
-                spendingListElement.appendChild(spendingItem);
-            });
+    // Function to create or update the bar chart
+    const updateBarChart = () => {
+        const assetData = calculateRelativePercentages(financialData.assets, financialData.totalNetWorth);
+        const familyData = calculateRelativePercentages(financialData.familyContributions, financialData.totalNetWorth);
 
-            
-            document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const type = event.target.dataset.type;
-                    const index = parseInt(event.target.dataset.index);
+        const labels = [];
+        const values = [];
+        const colors = [];
 
-                    if (type === 'asset') {
-                        deleteAsset(index);
-                    } else if (type === 'spending') {
-                        deleteSpending(index);
-                    }
-                });
-            });
-        };
-
-        
-        const deleteAsset = (index) => {
-            if (confirm('Are you sure you want to delete this asset?')) { 
-                financialData.assetClasses.splice(index, 1);
-                financialData.lastUpdated = new Date().toLocaleDateString('en-IN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                renderDashboard();
-            }
-        };
-
-       
-        const deleteSpending = (index) => {
-            if (confirm('Are you sure you want to delete this spending entry?')) { 
-                financialData.previousSpending.splice(index, 1);
-                renderDashboard();
-            }
-        };
-
-        
-        updateBalanceBtn.addEventListener('click', () => {
-            const adjustmentAmount = parseFloat(balanceInput.value);
-            if (!isNaN(adjustmentAmount)) {
-                let cashAsset = financialData.assetClasses.find(asset => asset.name === 'Cash');
-
-                
-                if (!cashAsset) {
-                    cashAsset = { name: 'Cash', value: 0, color: '#9E9E9E' };
-                    financialData.assetClasses.push(cashAsset);
-                }
-
-                cashAsset.value += adjustmentAmount;
-                
-                if (cashAsset.value < 0) cashAsset.value = 0;
-
-                financialData.lastUpdated = new Date().toLocaleDateString('en-IN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                renderDashboard(); 
-                balanceInput.value = ''; 
-            } else {
-                alert('Please enter a valid number for cash adjustment.');
-            }
+        assetData.forEach(item => {
+            labels.push(`${item.label} (${item.percentage.toFixed(2)}%)`);
+            values.push(item.value);
+            colors.push(item.color);
         });
 
-       
-        addAssetBtn.addEventListener('click', () => {
-            const name = newAssetNameInput.value.trim();
-            const value = parseFloat(newAssetValueInput.value);
-            const color = newAssetColorInput.value;
+        familyData.forEach(item => {
+            labels.push(`${item.label} (Family: ${item.percentage.toFixed(2)}%)`);
+            values.push(item.value);
+            colors.push(item.color);
+        });
 
-            if (name && !isNaN(value) && value >= 0) {
-               
-                const existingAsset = financialData.assetClasses.find(asset => asset.name.toLowerCase() === name.toLowerCase());
-                if (existingAsset) {
-                    existingAsset.value = value;
-                    existingAsset.color = color; 
+        // Add a "Remaining Balance" or "Unallocated" bar if totalNetWorth is not fully covered
+        let currentAllocatedValue = Object.values(financialData.assets).reduce((sum, asset) => sum + asset.value, 0) +
+                                    Object.values(financialData.familyContributions).reduce((sum, member) => sum + member.value, 0);
+
+        let remainingBalance = financialData.totalNetWorth - currentAllocatedValue;
+
+        if (remainingBalance > 0 || financialData.totalNetWorth === 0) { // Show if there's remaining or if total is 0 to indicate unallocated
+            labels.push(`Unallocated (${((remainingBalance / financialData.totalNetWorth) * 100).toFixed(2)}%)`);
+            values.push(Math.max(0, remainingBalance)); // Ensure value is not negative
+            colors.push('#CCCCCC'); // Grey for unallocated
+        }
+
+
+        // Destroy existing chart if it exists
+        if (assetChart) {
+            assetChart.destroy();
+        }
+
+        // Create a canvas element if it doesn't exist
+        let canvas = document.getElementById('myBarChart');
+        if (!canvas) {
+            canvas = document.createElement('canvas');
+            canvas.id = 'myBarChart';
+            assetPieChartContainer.innerHTML = ''; // Clear previous content
+            assetPieChartContainer.appendChild(canvas);
+        }
+
+        const ctx = canvas.getContext('2d');
+        assetChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: `Amount (${financialData.currency})`,
+                    data: values,
+                    backgroundColor: colors,
+                    borderColor: colors.map(color => color.replace(')', ', 0.8)')).map(color => color.replace('rgb', 'rgba')), // Slightly darker border
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: `Amount (${financialData.currency})`
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Category / Contributor'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false, // Hide legend as percentages are in labels
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                const value = context.raw;
+                                return `${label}: ${financialData.currency} ${value.toLocaleString('en-IN')}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    // --- Event Listeners ---
+
+    // Update balance button (Now truly updates the totalNetWorth)
+    updateBalanceBtn.addEventListener('click', () => {
+        const amount = parseFloat(updateBalanceInput.value);
+        if (!isNaN(amount) && amount >= 0) {
+            financialData.totalNetWorth = amount; // Directly set the total net worth
+            updateTotalNetWorth(); // Update display and save
+            renderAssetsList(); // Recalculate percentages and update lists
+            renderFamilyMembersList();
+            updateBarChart(); // Update chart based on new total
+            updateBalanceInput.value = '';
+        } else {
+            alert('Please enter a valid positive number for the balance.');
+        }
+    });
+
+    // Currency converter (client-side only for display)
+    currencyConverter.addEventListener('change', (event) => {
+        financialData.currency = event.target.value;
+        renderNetWorth();
+        renderAssetsList();
+        renderFamilyMembersList();
+        updateBarChart();
+    });
+
+
+    // Toggle family contribution section visibility
+    familyContributionBtn.addEventListener('click', () => {
+        familyContributionSection.style.display = familyContributionSection.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Add new family member
+    addFamilyMemberBtn.addEventListener('click', () => {
+        const name = familyMemberNameInput.value.trim();
+        const value = parseFloat(familyMemberValueInput.value);
+        const color = familyMemberColorInput.value;
+
+        if (name && !isNaN(value) && value >= 0) {
+            financialData.familyContributions[name] = { value: value, color: color };
+            updateTotalNetWorth(); // Update total (which is now static user input)
+            renderFamilyMembersList(); // Update family list
+            updateBarChart(); // Update chart
+            familyMemberNameInput.value = '';
+            familyMemberValueInput.value = '';
+        } else {
+            alert('Please enter a valid name and positive value for the family member contribution.');
+        }
+    });
+
+    // Handle asset dropdown changes to show input fields
+    assetDropdowns.forEach(dropdown => {
+        dropdown.addEventListener('change', (event) => {
+            const parentDiv = event.target.closest('div');
+            const inputSection = parentDiv.querySelector('div[style*="display: none"]');
+            if (inputSection) {
+                if (event.target.value !== '') {
+                    inputSection.style.display = 'block';
                 } else {
-                    financialData.assetClasses.push({ name, value, color });
+                    inputSection.style.display = 'none';
                 }
-
-                financialData.lastUpdated = new Date().toLocaleDateString('en-IN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                renderDashboard(); 
-                newAssetNameInput.value = '';
-                newAssetValueInput.value = '';
-                newAssetColorInput.value = '#4CAF50'; 
-            } else {
-                alert('Please enter a valid asset name and a positive number for its value.');
             }
         });
 
-        
-        addSpendingBtn.addEventListener('click', () => {
-            const category = newSpendingCategoryInput.value.trim();
-            const amount = parseFloat(newSpendingAmountInput.value);
+        // Add asset from dropdown
+        const addAssetBtn = dropdown.closest('div').querySelector('.addAssetBtn');
+        if (addAssetBtn) {
+            addAssetBtn.addEventListener('click', (event) => {
+                const parentDiv = event.target.closest('div');
+                const selectedAssetType = dropdown.value;
+                const assetValueInput = parentDiv.querySelector('.asset-value');
+                const assetColorInput = parentDiv.querySelector('.asset-color');
 
-            if (category && !isNaN(amount) && amount >= 0) {
-                financialData.previousSpending.push({ category, amount });
-                renderDashboard(); 
-                newSpendingCategoryInput.value = '';
-                newSpendingAmountInput.value = '';
-            } else {
-                alert('Please enter a valid spending category and a positive number for the amount.');
-            }
-        });
+                const value = parseFloat(assetValueInput.value);
+                const color = assetColorInput.value;
 
-        renderDashboard();
+                if (selectedAssetType && !isNaN(value) && value >= 0) {
+                    financialData.assets[selectedAssetType] = { value: value, color: color };
+                    updateTotalNetWorth(); // Update total (which is now static user input)
+                    renderAssetsList(); // Update assets list
+                    updateBarChart(); // Update chart
+                    assetValueInput.value = '';
+                    parentDiv.querySelector('div[style*="display: block"]').style.display = 'none'; // Hide input section
+                    dropdown.value = ''; // Reset dropdown
+                } else {
+                    alert('Please select an asset type and enter a valid positive amount.');
+                }
+            });
+        }
+    });
 
-        
+    // Add custom asset
+    addCustomAssetBtn.addEventListener('click', () => {
+        const name = newAssetNameInput.value.trim();
+        const value = parseFloat(newAssetValueInput.value);
+        const color = newAssetColorInput.value;
+
+        if (name && !isNaN(value) && value >= 0) {
+            financialData.assets[name] = { value: value, color: color };
+            updateTotalNetWorth();
+            renderAssetsList(); // Update assets list
+            updateBarChart(); // Update chart
+            newAssetNameInput.value = '';
+            newAssetValueInput.value = '';
+        } else {
+            alert('Please enter a valid name and positive value for the new asset.');
+        }
+    });
+
+    // --- Initial Render on Load ---
+    renderNetWorth();
+    renderAssetsList();
+    renderFamilyMembersList();
+    updateBarChart();
+});
